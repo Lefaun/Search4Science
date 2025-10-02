@@ -213,7 +213,7 @@ def create_wordcloud(text):
 
 def main():
     # Header com atribuição do autor
-    st.title("🔍 Assistente de Pesquisa - Paulo Monteiro")
+    st.title("🔍 Assistente de Pesquisa")
     st.markdown("""
     *Criado por Paulo Monteiro - 1/10/2025*
     
