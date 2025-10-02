@@ -1,25 +1,9 @@
-# Streamlit App Requirements
-# Paulo Monteiro - Research Assistant
-# Created: 1/10/2025
-
-# Web Framework
 streamlit==1.28.0
-
-# HTTP Requests
 requests==2.31.0
-
-# Data Manipulation
 pandas==2.1.0
-numpy==1.24.3
-
-# Visualizations
 plotly==5.15.0
-matplotlib==3.7.2
 wordcloud==1.9.2
-
-# Web Scraping & Search
+matplotlib==3.7.2
+numpy==1.24.3
 googlesearch-python==1.2.3
 lxml==4.9.3
-
-# XML Processing (built-in with Python)
-# xml.etree.ElementTree
