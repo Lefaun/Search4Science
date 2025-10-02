@@ -165,12 +165,12 @@ def search_google_web(subjects, max_results_per_subject=10):
     st.success(f"Found {len(all_web_data)} web resources!")
     return all_web_data
             
-            progress_bar.progress((i + 1) / len(subjects))
-            time.sleep(2)  # Be polite to Google
+        progress_bar.progress((i + 1) / len(subjects))
+        time.sleep(2)  # Be polite to Google
             
-        except Exception as e:
-            st.error(f"Error searching Google for '{subject}': {str(e)}")
-            st.info("This might be due to rate limiting. Trying next subject...")
+    except Exception as e:
+        st.error(f"Error searching Google for '{subject}': {str(e)}")
+        st.info("This might be due to rate limiting. Trying next subject...")
     
     status_text.text("✅ Google web search completed!")
     return all_web_data
