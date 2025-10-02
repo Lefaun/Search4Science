@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import re
 from collections import Counter
 import numpy as np
-from googlesearch import search as google_search
 import webbrowser
 from urllib.parse import quote
 
@@ -164,16 +163,6 @@ def search_google_web(subjects, max_results_per_subject=10):
     status_text.text("✅ Web resources search completed!")
     st.success(f"Found {len(all_web_data)} web resources!")
     return all_web_data
-            
-    progress_bar.progress((i + 1) / len(subjects))
-    time.sleep(2)  # Be polite to Google
-            
-        except Exception as e:
-            st.error(f"Error searching Google for '{subject}': {str(e)}")
-            st.info("This might be due to rate limiting. Trying next subject...")
-    
-    status_text.text("✅ Google web search completed!")
-    return all_web_data
 
 def open_link(url):
     """Function to open links in new tab"""
@@ -298,9 +287,9 @@ def main():
         - PDF downloads available
         
         **🌐 Web Resources Tab:**
-        - **Google Search**: Latest web resources, articles, and news
-        - Real-time information from various sources
-        - Blog posts, tutorials, and industry updates
+        - **Educational Sources**: Curated resources from reliable websites
+        - Tutorials, articles, and research materials
+        - Blog posts and industry updates
         
         ### Features:
         - Dual search approach (academic + web)
@@ -375,14 +364,14 @@ def main():
     
     with tab3:
         st.header("Web Resources Search")
-        st.markdown("Search latest web resources, articles, and news from Google")
+        st.markdown("Search latest web resources from educational websites")
         
         if st.button("🌐 Search Web Resources", type="primary", key="web_search"):
             if not subjects:
                 st.error("Please enter at least one scientific subject.")
                 return
             
-            with st.spinner("Searching web resources from Google..."):
+            with st.spinner("Searching web resources from educational sources..."):
                 web_data = search_google_web(subjects, max_web_results)
             
             if web_data:
