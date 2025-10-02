@@ -16,7 +16,7 @@ from urllib.parse import quote
 
 # Configure the page
 st.set_page_config(
-    page_title="Assistente de Pesquisa - Paulo Monteiro",
+    page_title="Assistente de Pesquisa",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded"
