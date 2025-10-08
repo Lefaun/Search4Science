@@ -466,58 +466,58 @@ def main():
     with st.spinner("Procurando artigos científicos no arXiv..."):
         articles_data = scrape_arxiv_and_scielo(subjects, max_scientific_results)  # ← MUDANÇA AQUI
                 
-                with st.spinner("Procurando artigos científicos no arXiv..."):
-                    articles_data = scrape_arxiv(subjects, max_scientific_results)
+        with st.spinner("Procurando artigos científicos no arXiv..."):
+            articles_data = scrape_arxiv(subjects, max_scientific_results)
+            
+            if articles_data:
+                df = pd.DataFrame(articles_data)
+                st.session_state.scientific_df = df
+                st.success(f"✅ Encontrados {len(df)} artigos científicos com sucesso!")
                 
-                if articles_data:
-                    df = pd.DataFrame(articles_data)
-                    st.session_state.scientific_df = df
-                    st.success(f"✅ Encontrados {len(df)} artigos científicos com sucesso!")
-                    
-                    # Mostrar resultados
-                    st.subheader(f"Artigos Científicos ({len(df)} no total)")
-                    
-                    # Opções de filtro
-                    col_filter1, col_filter2 = st.columns(2)
-                    with col_filter1:
-                        selected_subjects = st.multiselect(
-                            "Filtrar por assunto:",
-                            options=df['Subject'].unique(),
-                            default=df['Subject'].unique(),
-                            key="scientific_subjects"
-                        )
-                    
-                    filtered_df = df[df['Subject'].isin(selected_subjects)]
-                    
-                    # Mostrar artigos com links clicáveis
-                    for idx, row in filtered_df.iterrows():
-                        with st.container():
-                            col_content, col_link = st.columns([4, 1])
-                            with col_content:
-                                st.write(f"**{row['Title']}**")
-                                st.write(f"*Assunto: {row['Subject']}*")
-                                st.write(f"{row['Abstract'][:200]}...")
+                # Mostrar resultados
+                st.subheader(f"Artigos Científicos ({len(df)} no total)")
+                
+                # Opções de filtro
+                col_filter1, col_filter2 = st.columns(2)
+                with col_filter1:
+                    selected_subjects = st.multiselect(
+                        "Filtrar por assunto:",
+                        options=df['Subject'].unique(),
+                        default=df['Subject'].unique(),
+                        key="scientific_subjects"
+                    )
+                
+                filtered_df = df[df['Subject'].isin(selected_subjects)]
+                
+                # Mostrar artigos com links clicáveis
+                for idx, row in filtered_df.iterrows():
+                    with st.container():
+                        col_content, col_link = st.columns([4, 1])
+                        with col_content:
+                            st.write(f"**{row['Title']}**")
+                            st.write(f"*Assunto: {row['Subject']}*")
+                            st.write(f"{row['Abstract'][:200]}...")
+                            
+                            # Mostrar o link clicável
+                            if row['Link'] and row['Link'] != "":
+                                link_html = create_clickable_link(row['Link'], "📄 Abrir Artigo")
+                                st.markdown(link_html, unsafe_allow_html=True)
+                            else:
+                                st.warning("Link não disponível")
                                 
-                                # Mostrar o link clicável
-                                if row['Link'] and row['Link'] != "":
-                                    link_html = create_clickable_link(row['Link'], "📄 Abrir Artigo")
-                                    st.markdown(link_html, unsafe_allow_html=True)
-                                else:
-                                    st.warning("Link não disponível")
-                                    
-                            st.markdown("---")
-                    
-                    # Estatísticas
-                    col_stat1, col_stat2, col_stat3 = st.columns(3)
-                    with col_stat1:
-                        st.metric("Total de Artigos", len(df))
-                    with col_stat2:
-                        st.metric("Assuntos Únicos", df['Subject'].nunique())
-                    with col_stat3:
-                        st.metric("Fonte", "arXiv")
-                    
-                else:
-                    st.error("Nenhum artigo científico foi encontrado. Por favor, tente termos de busca diferentes.")
+                        st.markdown("---")
+                
+                # Estatísticas
+                col_stat1, col_stat2, col_stat3 = st.columns(3)
+                with col_stat1:
+                    st.metric("Total de Artigos", len(df))
+                with col_stat2:
+                    st.metric("Assuntos Únicos", df['Subject'].nunique())
+                with col_stat3:
+                    st.metric("Fonte", "arXiv")
+                
+            else:
+                st.error("Nenhum artigo científico foi encontrado. Por favor, tente termos de busca diferentes.")
         
         with tab3:
             st.header("Busca de Recursos Web")
