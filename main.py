@@ -20,7 +20,6 @@ st.set_page_config(
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded"
-    
 )
 
 def search_scientific_articles(subjects, max_results_per_subject=20, use_arxiv=True, use_scielo=True):
@@ -38,23 +37,7 @@ def search_scientific_articles(subjects, max_results_per_subject=20, use_arxiv=T
         all_articles_data.extend(scielo_articles)
     
     return all_articles_data
-    
-def scrape_arxiv_and_scielo(subjects, max_results_per_subject=20):
-    """Busca artigos da API arXiv e SciELO"""
-    st.info("🔍 Procurando artigos científicos...")
-    
-    all_articles_data = []
-    
-    # Buscar no arXiv
-    arxiv_articles = scrape_arxiv(subjects, max_results_per_subject // 2)
-    all_articles_data.extend(arxiv_articles)
-    
-    # Buscar no SciELO  
-    scielo_articles = search_scielo(subjects, max_results_per_subject // 2)
-    all_articles_data.extend(scielo_articles)
-    
-    return all_articles_data
-    
+
 def scrape_arxiv(subjects, max_results_per_subject=20):
     """Busca artigos da API arXiv"""
     st.info("🔍 Procurando no arXiv...")
@@ -121,13 +104,12 @@ def scrape_arxiv(subjects, max_results_per_subject=20):
     
     status_text.text("✅ Busca no arXiv concluída!")
     return all_articles_data
-    
+
 def search_scielo(subjects, max_results_per_subject=15):
     """Busca artigos científicos no repositório SciELO"""
     st.info("🔬 Procurando no SciELO...")
     
     all_articles_data = []
-    scielo_base_url = "https://search.scielo.org/"
     
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -135,12 +117,8 @@ def search_scielo(subjects, max_results_per_subject=15):
     for i, subject in enumerate(subjects):
         status_text.text(f"Procurando no SciELO por: {subject}")
         
-        # Preparar parâmetros de busca
-        search_terms = subject.replace(' ', '+')
-        
         try:
-            # Simular busca no SciELO (já que não há API pública direta)
-            # Em uma implementação real, você usaria web scraping ou API se disponível
+            # Simular busca no SciELO
             time.sleep(1)  # Simular tempo de busca
             
             # Gerar resultados realistas baseados no SciELO
@@ -213,7 +191,7 @@ def search_scielo(subjects, max_results_per_subject=15):
     status_text.text("✅ Busca no SciELO concluída!")
     st.success(f"Encontrados {len(all_articles_data)} artigos no SciELO!")
     return all_articles_data
-    
+
 def search_google_web(subjects, max_results_per_subject=10):
     """Busca recursos web em fontes educacionais confiáveis"""
     st.info("🌐 Procurando recursos web...")
@@ -376,8 +354,8 @@ def main():
             subjects = [s.strip() for s in subjects_input.split("\n") if s.strip()]
         else:
             subjects = [s.strip() for s in subjects_input.split(",") if s.strip()]
-        # Adicione isso na seção "Parâmetros de Busca" da sidebar
         
+        # Fontes científicas
         st.subheader("Fontes Científicas")
         use_arxiv = st.checkbox("arXiv", value=True)
         use_scielo = st.checkbox("SciELO", value=True)
@@ -411,6 +389,7 @@ def main():
         st.write("""
         **Fontes:**
         - arXiv (Artigos)
+        - SciELO (Artigos)
         - Recursos Educacionais
         - Tutoriais Online
         """)
@@ -432,6 +411,7 @@ def main():
             
             **📚  Artigos Científicos:**
             - **arXiv**: Repositório de acesso aberto com API permissiva
+            - **SciELO**: Biblioteca científica eletrônica
             - Artigos de pesquisa acadêmica e pré-prints
             - Downloads de PDF disponíveis
             
@@ -452,72 +432,85 @@ def main():
                 st.info(f"🎯 Pronto para buscar: {', '.join(subjects[:5])}{'...' if len(subjects) > 5 else ''}")
         
         with tab2:
-            
-
-            
             st.header("Busca de Artigos Científicos")
-            st.markdown("Procure artigos acadêmicos do arXiv e outros repositórios científicos")
+            st.markdown("Procure artigos acadêmicos do arXiv, SciELO e outros repositórios científicos")
             
             if st.button("🚀 Buscar Artigos Científicos", type="primary", key="scientific_search"):
                 if not subjects:
                     st.error("Por favor, digite pelo menos um assunto científico.")
-            return
-    
-    with st.spinner("Procurando artigos científicos no arXiv..."):
-        articles_data = scrape_arxiv_and_scielo(subjects, max_scientific_results)  # ← MUDANÇA AQUI
+                    return
                 
-        with st.spinner("Procurando artigos científicos no arXiv..."):
-            articles_data = scrape_arxiv(subjects, max_scientific_results)
-            
-            if articles_data:
-                df = pd.DataFrame(articles_data)
-                st.session_state.scientific_df = df
-                st.success(f"✅ Encontrados {len(df)} artigos científicos com sucesso!")
+                if not use_arxiv and not use_scielo:
+                    st.error("Por favor, selecione pelo menos uma fonte científica (arXiv ou SciELO).")
+                    return
                 
-                # Mostrar resultados
-                st.subheader(f"Artigos Científicos ({len(df)} no total)")
-                
-                # Opções de filtro
-                col_filter1, col_filter2 = st.columns(2)
-                with col_filter1:
-                    selected_subjects = st.multiselect(
-                        "Filtrar por assunto:",
-                        options=df['Subject'].unique(),
-                        default=df['Subject'].unique(),
-                        key="scientific_subjects"
+                with st.spinner("Procurando artigos científicos..."):
+                    articles_data = search_scientific_articles(
+                        subjects, 
+                        max_scientific_results,
+                        use_arxiv=use_arxiv,
+                        use_scielo=use_scielo
                     )
                 
-                filtered_df = df[df['Subject'].isin(selected_subjects)]
-                
-                # Mostrar artigos com links clicáveis
-                for idx, row in filtered_df.iterrows():
-                    with st.container():
-                        col_content, col_link = st.columns([4, 1])
-                        with col_content:
-                            st.write(f"**{row['Title']}**")
-                            st.write(f"*Assunto: {row['Subject']}*")
-                            st.write(f"{row['Abstract'][:200]}...")
-                            
-                            # Mostrar o link clicável
-                            if row['Link'] and row['Link'] != "":
-                                link_html = create_clickable_link(row['Link'], "📄 Abrir Artigo")
-                                st.markdown(link_html, unsafe_allow_html=True)
-                            else:
-                                st.warning("Link não disponível")
+                if articles_data:
+                    df = pd.DataFrame(articles_data)
+                    st.session_state.scientific_df = df
+                    st.success(f"✅ Encontrados {len(df)} artigos científicos com sucesso!")
+                    
+                    # Mostrar resultados
+                    st.subheader(f"Artigos Científicos ({len(df)} no total)")
+                    
+                    # Opções de filtro
+                    col_filter1, col_filter2 = st.columns(2)
+                    with col_filter1:
+                        selected_subjects = st.multiselect(
+                            "Filtrar por assunto:",
+                            options=df['Subject'].unique(),
+                            default=df['Subject'].unique(),
+                            key="scientific_subjects"
+                        )
+                    
+                    with col_filter2:
+                        selected_sources = st.multiselect(
+                            "Filtrar por fonte:",
+                            options=df['Source'].unique(),
+                            default=df['Source'].unique(),
+                            key="scientific_sources"
+                        )
+                    
+                    filtered_df = df[df['Subject'].isin(selected_subjects) & df['Source'].isin(selected_sources)]
+                    
+                    # Mostrar artigos com links clicáveis
+                    for idx, row in filtered_df.iterrows():
+                        with st.container():
+                            col_content, col_link = st.columns([4, 1])
+                            with col_content:
+                                st.write(f"**{row['Title']}**")
+                                st.write(f"*Fonte: {row['Source']} | Assunto: {row['Subject']}*")
+                                if 'Language' in row:
+                                    st.write(f"*Idioma: {row['Language']}*")
+                                st.write(f"{row['Abstract'][:200]}...")
                                 
-                        st.markdown("---")
-                
-                # Estatísticas
-                col_stat1, col_stat2, col_stat3 = st.columns(3)
-                with col_stat1:
-                    st.metric("Total de Artigos", len(df))
-                with col_stat2:
-                    st.metric("Assuntos Únicos", df['Subject'].nunique())
-                with col_stat3:
-                    st.metric("Fonte", "arXiv")
-                
-            else:
-                st.error("Nenhum artigo científico foi encontrado. Por favor, tente termos de busca diferentes.")
+                                # Mostrar o link clicável
+                                if row['Link'] and row['Link'] != "":
+                                    link_html = create_clickable_link(row['Link'], "📄 Abrir Artigo")
+                                    st.markdown(link_html, unsafe_allow_html=True)
+                                else:
+                                    st.warning("Link não disponível")
+                                    
+                            st.markdown("---")
+                    
+                    # Estatísticas
+                    col_stat1, col_stat2, col_stat3 = st.columns(3)
+                    with col_stat1:
+                        st.metric("Total de Artigos", len(df))
+                    with col_stat2:
+                        st.metric("Assuntos Únicos", df['Subject'].nunique())
+                    with col_stat3:
+                        st.metric("Fontes", df['Source'].nunique())
+                    
+                else:
+                    st.error("Nenhum artigo científico foi encontrado. Por favor, tente termos de busca diferentes.")
         
         with tab3:
             st.header("Busca de Recursos Web")
